@@ -26,8 +26,24 @@ def createWindow() :
 
 	return window
 
+# Defining and positioning player
+def createPlayer() :
+	# Draw player
+	player = turtle.Turtle()
+	player.color("blue")
+	player.shape("triangle")
+	player.penup()
+	player.speed(0)
+
+	# Position player
+	player.setposition(0, -270 + 40)
+	player.setheading(90)
+
+	return player
+
 def main() :
 	window = createWindow()
+	player = createPlayer()
 
 	value = input("Press enter to exit")
 
