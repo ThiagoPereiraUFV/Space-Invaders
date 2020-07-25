@@ -154,7 +154,5 @@ class SpaceInvaders :
 def main() :
 	game = SpaceInvaders()
 
-	#value = input("Game running! Press enter to exit\n\n")
-
 if __name__ == "__main__" :
 	main()
