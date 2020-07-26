@@ -2,5 +2,5 @@
 
 ```bash
 # Go into the repository
-$ apt-get install python-tk
+$ apt-get install python3-tk
 ```

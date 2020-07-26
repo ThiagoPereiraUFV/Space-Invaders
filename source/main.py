@@ -1,4 +1,5 @@
 # Space Invaders v1.0 by Thiago Pereira
+# Importing game essential modules
 import turtle
 import os
 
@@ -27,38 +28,40 @@ class SpaceInvaders :
 		turtle.onkey(self.moveRight, "Right")
 		turtle.onkey(self.fireBullet, "space")
 		turtle.onkey(turtle.bye, "Escape")
+		
+		try:
+			# Main game loop
+			while True :
+				# Enemy position
+				enemyX = self.enemy.xcor()
+				enemyY = self.enemy.ycor()
+				enemyX += self.enemySpeed
 
-		# Main game loop
-		while True :
-			# Enemy position
-			enemyX = self.enemy.xcor()
-			enemyY = self.enemy.ycor()
-			enemyX += self.enemySpeed
+				if(enemyX > 230) :
+					enemyY -= 30
+					self.enemySpeed *= -1
+				elif(enemyX < -230) :
+					enemyY -= 30
+					self.enemySpeed *= -1
 
-			if(enemyX > 230) :
-				enemyY -= 30
-				self.enemySpeed *= -1
-			elif(enemyX < -230) :
-				enemyY -= 30
-				self.enemySpeed *= -1
+				self.enemy.setposition(enemyX, enemyY)
 
-			self.enemy.setx(enemyX)
-			self.enemy.sety(enemyY)
+				# Bullet position
+				bulletY = self.bullet.ycor()
+				bulletY += self.bulletSpeed
+				self.bullet.sety(bulletY)
 
-			# Bullet position
-			bulletY = self.bullet.ycor()
-			bulletY += self.bulletSpeed
-			self.bullet.sety(bulletY)
+				if(bulletY > 270):
+					self.bullet.hideturtle()
+					self.bulletState = "ready"
 
-			if(bulletY > 270):
-				self.bullet.hideturtle()
-				self.bulletState = "ready"
-
-			# Enemy death
-			bulletX, bulletY = self.bullet.xcor(), self.bullet.ycor()
-			enemyX, enemyY = self.enemy.xcor(), self.enemy.ycor()
-			if(bulletX > enemyX - 10 and bulletX < enemyX + 10 and bulletY > enemyY - 10 and bulletY < enemyY + 10) :
-				self.enemy.hideturtle()
+				# Enemy death
+				bulletX, bulletY = self.bullet.xcor(), self.bullet.ycor()
+				enemyX, enemyY = self.enemy.xcor(), self.enemy.ycor()
+				if(bulletX > enemyX - 10 and bulletX < enemyX + 10 and bulletY > enemyY - 10 and bulletY < enemyY + 10) :
+					self.enemy.hideturtle()
+		finally:
+			return
 
 	# Defining screen window
 	def createWindow(self) :
