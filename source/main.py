@@ -2,23 +2,28 @@
 # Importing game essential modules
 import turtle
 import os
+import time
+import tkinter as tk
 
 class SpaceInvaders :
 	# Defining game entities
 	def __init__(self) :
-		self.window = None
-		self.player = None
-		self.bullet = None
-		self.enemy = None
-		self.playerSpeed = 15
-		self.bulletSpeed = 15
-		self.enemySpeed = 3
+		root = tk.Tk()
+		self.dimension = root.winfo_screenheight()*0.9
+		self.Nenemies = 5
+		self.NenemiesR = 5
+		self.points = 0
+		self.window, self.player, self.bullet = None, None, None
+		self.enemies = []
+		self.playerSpeed = 15*self.dimension*0.001
+		self.bulletSpeed = 20*self.dimension*0.003
+		self.enemySpeed = 2*self.dimension*0.003
 		self.bulletState = "ready"
 
 		self.createWindow()
 		self.createPlayer()
 		self.createPlayerBullet()
-		self.createEnemy()
+		self.createEnemies()
 		self.main()
 
 	def main(self) :
@@ -31,35 +36,53 @@ class SpaceInvaders :
 		
 		try:
 			# Main game loop
+			self.alertText("ready!", 2)
+			self.alertText("go", 0.5)
 			while True :
-				# Enemy position
-				enemyX = self.enemy.xcor()
-				enemyY = self.enemy.ycor()
-				enemyX += self.enemySpeed
+				# Enemies position
+				for i in range(self.Nenemies) :
+					if(self.enemies[i].isvisible()) :
+						enemyX = self.enemies[i].xcor()
+						enemyY = self.enemies[i].ycor()
 
-				if(enemyX > 230) :
-					enemyY -= 30
-					self.enemySpeed *= -1
-				elif(enemyX < -230) :
-					enemyY -= 30
-					self.enemySpeed *= -1
+						if(enemyX < -(self.dimension/2) + 40 or enemyX > (self.dimension/2) - 40) :
+							self.enemySpeed *= -1
 
-				self.enemy.setposition(enemyX, enemyY)
-
+							for j in range(self.Nenemies) :
+								if(self.enemies[j].isvisible()) :
+									enemyX = self.enemies[j].xcor() + self.enemySpeed
+									enemyY = self.enemies[j].ycor() - 30
+									self.enemies[j].setposition(enemyX, enemyY)
+						else:
+							self.enemies[i].setposition(enemyX + self.enemySpeed, enemyY)
+				
 				# Bullet position
-				bulletY = self.bullet.ycor()
-				bulletY += self.bulletSpeed
-				self.bullet.sety(bulletY)
+				if(self.bulletState == "fire") :
+					bulletY = self.bullet.ycor()
+					bulletY += self.bulletSpeed
+					self.bullet.sety(bulletY)
 
-				if(bulletY > 270):
-					self.bullet.hideturtle()
-					self.bulletState = "ready"
-
+					if(bulletY > (self.dimension/2)):
+						self.bullet.hideturtle()
+						self.bulletState = "ready"
+				
 				# Enemy death
-				bulletX, bulletY = self.bullet.xcor(), self.bullet.ycor()
-				enemyX, enemyY = self.enemy.xcor(), self.enemy.ycor()
-				if(bulletX > enemyX - 10 and bulletX < enemyX + 10 and bulletY > enemyY - 10 and bulletY < enemyY + 10) :
-					self.enemy.hideturtle()
+				for i in range(self.Nenemies) :
+					if(self.enemies[i].isvisible()) :
+						rad = 15
+						bulletX, bulletY = self.bullet.xcor(), self.bullet.ycor()
+						enemyX, enemyY = self.enemies[i].xcor(), self.enemies[i].ycor()
+						playerX, playerY = self.player.xcor(), self.player.ycor()
+						if(bulletX > enemyX - rad and bulletX < enemyX + rad and bulletY > enemyY - rad and bulletY < enemyY + rad) :
+							self.enemies[i].hideturtle()
+							self.points += 1
+							if(self.points == self.Nenemies) :
+								self.alertText("You won!", 4)
+								return
+
+						if(enemyY > playerY - rad and enemyY < playerY + rad) :
+							self.alertText("Game over!", 4)
+							return
 		finally:
 			return
 
@@ -67,71 +90,83 @@ class SpaceInvaders :
 	def createWindow(self) :
 		# Create window
 		self.window = turtle.Screen()
+		self.window.setup(width=1.0, height=1.0, startx=None, starty=None)
 		self.window.bgcolor("black")
 		self.window.title("Space Invaders v1.0 by Thiago Pereira")
 
 		# Draw border
 		border_pen = turtle.Turtle()
+		border_pen.hideturtle()
 		border_pen.speed(0)
 		border_pen.color("white")
 		border_pen.penup()
-		border_pen.setposition(-270, -270)
+		border_pen.setposition(-(self.dimension/2), -(self.dimension/2))
 		border_pen.pendown()
-		border_pen.pensize(3)
+		border_pen.pensize(5)
 
 		for side in range(4) :
-			border_pen.fd(540)
+			border_pen.fd(self.dimension)
 			border_pen.lt(90)
 
-		border_pen.hideturtle()
 
 	# Defining and positioning player
 	def createPlayer(self) :
 		# Draw player
 		self.player = turtle.Turtle()
+		self.player.hideturtle()
 		self.player.color("blue")
 		self.player.shape("triangle")
 		self.player.penup()
 		self.player.speed(0)
 
 		# Player initial position
-		self.player.setposition(0, -270 + 40)
+		self.player.setposition(0, -(self.dimension/2) + 40)
 		self.player.setheading(90)
+		self.player.showturtle()
 
 	# Defining and positioning player bullet
 	def createPlayerBullet(self) :
 		# Draw player bullet
 		self.bullet = turtle.Turtle()
+		self.bullet.hideturtle()
 		self.bullet.color("yellow")
 		self.bullet.shape("triangle")
 		self.bullet.penup()
 		self.bullet.speed(0)
 
 		# Bullet initial position
-		self.bullet.setposition(0, 0)
+		self.bullet.setposition(self.player.xcor(), self.player.ycor() + 10)
 		self.bullet.setheading(90)
 		self.bullet.shapesize(0.5, 0.5)
-		self.bullet.hideturtle()
 
 	# Defining and positioning enemy
-	def createEnemy(self) :
-		# Draw enemy
-		self.enemy = turtle.Turtle()
-		self.enemy.color("red")
-		self.enemy.shape("circle")
-		self.enemy.penup()
-		self.enemy.speed(0)
+	def createEnemies(self) :
+		# Draw enemies
+		row = 1
+		col = 0
+		for i in range(self.Nenemies) :
+			if(i == row*5) :
+				row += 1
+				col = 0
+			enemy = turtle.Turtle()
+			enemy.hideturtle()
+			enemy.color("red")
+			enemy.shape("circle")
+			enemy.penup()
+			enemy.speed(0)
+			enemy.setposition(-(self.dimension/2) + 40 + col*(self.dimension/self.NenemiesR), (self.dimension/2) - 40*row)
+			enemy.showturtle()
 
-		# Enemy initial position
-		self.enemy.setposition(-270 + 40, 270 - 40)
+			self.enemies.append(enemy)
+			col += 1
 
 	# Move spaceship left
 	def moveLeft(self) :
 		x = self.player.xcor()
 		x -= self.playerSpeed
 
-		if(x < -230) :
-			x = -230
+		if(x < -(self.dimension/2) + 40) :
+			x = -(self.dimension/2) + 40
 
 		self.player.setx(x)
 
@@ -140,8 +175,8 @@ class SpaceInvaders :
 		x = self.player.xcor()
 		x += self.playerSpeed
 
-		if(x > 230) :
-			x = 230
+		if(x > (self.dimension/2) - 40) :
+			x = (self.dimension/2) - 40
 
 		self.player.setx(x)
 
@@ -149,10 +184,17 @@ class SpaceInvaders :
 	def fireBullet(self) :
 		if(self.bulletState == "ready") :
 			self.bulletState = "fire"
-			x = self.player.xcor()
-			y = self.player.ycor() + 10
-			self.bullet.setposition(x, y)
+			self.bullet.setposition(self.player.xcor(), self.player.ycor() + 10)
 			self.bullet.showturtle()
+
+	def alertText(self, text, t) :
+		self.bullet.hideturtle()
+		turtle.hideturtle()
+		turtle.color("yellow")
+		style = ("Arial", 30)
+		turtle.write(text.upper(), font=style, align="center")
+		time.sleep(t)
+		turtle.clear()
 
 def main() :
 	game = SpaceInvaders()
