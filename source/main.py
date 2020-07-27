@@ -3,32 +3,48 @@
 import turtle
 import os
 import time
+import random
 import tkinter as tk
 
 class SpaceInvaders :
 	# Defining game entities
 	def __init__(self, level) :
+		# Setting board size
 		root = tk.Tk()
 		self.dimension = root.winfo_screenheight()*0.9
+
+		# Setting enemies color, number and enemies by row
 		self.Nenemies = 5
 		self.NenemiesR = 5
-		self.points = 0
+		self.color = ["yellow", "gold", "orange", "red", "maroon", 
+		"violet", "magenta", "purple", "navy", "blue", "skyblue", 
+		"cyan", "turquoise", "lightgreen", "green", "darkgreen", 
+		"chocolate", "brown", "gray", "white"]
+
+		# Game level and state
 		self.level = level
+		self.quit = False
+
 		# Game level loop
 		while True :
-			self.window, self.player, self.bullet = None, None, None
-			self.enemies = []
+			self.points = 0
+			# Setting game entities
+			self.window, self.player, self.bullet, self.enemies = None, None, None, []
+
+			# Setting game speed
 			self.playerSpeed = 15*self.dimension*0.001
 			self.bulletSpeed = 20*self.dimension*0.003
-			self.enemySpeed = 2*self.dimension*0.003*self.level
+			self.enemySpeed = 2*self.dimension*0.003 + self.level*0.5
+
+			# Buler state
 			self.bulletState = "ready"
-			self.quit = False
 
 			self.createWindow()
 			self.createPlayer()
 			self.createPlayerBullet()
 			self.createEnemies()
 			self.main()
+
 			if(self.quit) :
 				break
 			else :
@@ -46,7 +62,7 @@ class SpaceInvaders :
 			self.alertText("level " + str(self.level), 2)
 			self.alertText("ready!", 1)
 			self.alertText("go", 0.5)
-			
+
 			# Game main loop
 			while True :
 				# Enemies position
@@ -161,7 +177,8 @@ class SpaceInvaders :
 				col = 0
 			enemy = turtle.Turtle()
 			enemy.hideturtle()
-			enemy.color("red")
+			colorIndex = random.randint(0, len(self.color)-1)
+			enemy.color(self.color[colorIndex])
 			enemy.shape("circle")
 			enemy.penup()
 			enemy.speed(0)
