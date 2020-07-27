@@ -7,24 +7,32 @@ import tkinter as tk
 
 class SpaceInvaders :
 	# Defining game entities
-	def __init__(self) :
+	def __init__(self, level) :
 		root = tk.Tk()
 		self.dimension = root.winfo_screenheight()*0.9
 		self.Nenemies = 5
 		self.NenemiesR = 5
 		self.points = 0
-		self.window, self.player, self.bullet = None, None, None
-		self.enemies = []
-		self.playerSpeed = 15*self.dimension*0.001
-		self.bulletSpeed = 20*self.dimension*0.003
-		self.enemySpeed = 2*self.dimension*0.003
-		self.bulletState = "ready"
+		self.level = level
+		# Game level loop
+		while True :
+			self.window, self.player, self.bullet = None, None, None
+			self.enemies = []
+			self.playerSpeed = 15*self.dimension*0.001
+			self.bulletSpeed = 20*self.dimension*0.003
+			self.enemySpeed = 2*self.dimension*0.003*self.level
+			self.bulletState = "ready"
+			self.quit = False
 
-		self.createWindow()
-		self.createPlayer()
-		self.createPlayerBullet()
-		self.createEnemies()
-		self.main()
+			self.createWindow()
+			self.createPlayer()
+			self.createPlayerBullet()
+			self.createEnemies()
+			self.main()
+			if(self.quit) :
+				break
+			else :
+				self.level += 1
 
 	def main(self) :
 		# Listen keyboard
@@ -32,12 +40,14 @@ class SpaceInvaders :
 		turtle.onkey(self.moveLeft, "Left")
 		turtle.onkey(self.moveRight, "Right")
 		turtle.onkey(self.fireBullet, "space")
-		turtle.onkey(turtle.bye, "Escape")
+		turtle.onkey(self.quitGame, "Escape")
 		
 		try:
-			# Main game loop
-			self.alertText("ready!", 2)
+			self.alertText("level " + str(self.level), 2)
+			self.alertText("ready!", 1)
 			self.alertText("go", 0.5)
+			
+			# Game main loop
 			while True :
 				# Enemies position
 				for i in range(self.Nenemies) :
@@ -78,11 +88,12 @@ class SpaceInvaders :
 							self.points += 1
 							if(self.points == self.Nenemies) :
 								self.alertText("You won!", 4)
+								turtle.resetscreen()
 								return
 
 						if(enemyY > playerY - rad and enemyY < playerY + rad) :
 							self.alertText("Game over!", 4)
-							return
+							self.quitGame()
 		finally:
 			return
 
@@ -196,8 +207,13 @@ class SpaceInvaders :
 		time.sleep(t)
 		turtle.clear()
 
+	def quitGame(self) :
+		self.quit = True
+		turtle.bye()
+
 def main() :
-	game = SpaceInvaders()
+	level = 1
+	game = SpaceInvaders(level)
 
 if __name__ == "__main__" :
 	main()
