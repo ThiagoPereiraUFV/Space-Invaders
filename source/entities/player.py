@@ -29,7 +29,6 @@ class Player :
 		self.bullet.speed(0)
 
 		# Bullet initial position
-		self.bullet.setposition(self.player.xcor(), self.player.ycor() + 10)
 		self.bullet.setheading(90)
 		self.bullet.shapesize(0.5, 0.5)
 
@@ -44,9 +43,7 @@ class Player :
 	def moveLeft(self) :
 		x = self.player.xcor()
 		x -= self.playerSpeed
-
-		if(x < -(self.dimension/2) + 40) :
-			x = -(self.dimension/2) + 40
+		x = -(self.dimension/2) + 40 if (x < -(self.dimension/2) + 40) else x
 
 		self.player.setx(x)
 
@@ -54,9 +51,7 @@ class Player :
 	def moveRight(self) :
 		x = self.player.xcor()
 		x += self.playerSpeed
-
-		if(x > (self.dimension/2) - 40) :
-			x = (self.dimension/2) - 40
+		x = (self.dimension/2) - 40 if (x > (self.dimension/2) - 40) else x
 
 		self.player.setx(x)
 
